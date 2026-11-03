@@ -1,0 +1,16 @@
+# Local Neo4j for development. Start:  docker compose up -d
+# Browser UI: http://localhost:7474  (user neo4j / password ffi-checker-dev)
+# Stop:       docker compose down     (add -v to also delete the data)
+services:
+  neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"   # web browser UI
+      - "7687:7687"   # bolt protocol, used by the Python driver
+    environment:
+      NEO4J_AUTH: neo4j/ffi-checker-dev   # local dev only, never reuse for anything real
+    volumes:
+      - neo4j_data:/data
+
+volumes:
+  neo4j_data:
