@@ -53,6 +53,7 @@ class Runnable(BaseModel):
     name: str
     path: str
     swc: str  # path of the SwComponent that owns this runnable
+    symbol: str | None = None  # name of the C function that implements it
     task: str | None = None  # path of the Task it is mapped to (None = unmapped)
 
 

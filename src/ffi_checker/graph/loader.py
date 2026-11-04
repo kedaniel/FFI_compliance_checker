@@ -91,12 +91,13 @@ def load_graph(session, graph: Graph, reset: bool = False) -> None:
             )
 
     for rel_type, (src_label, dst_label) in REL_TYPES.items():
-        rows = [{"src": r.src, "dst": r.dst} for r in graph.rels_of_type(rel_type)]
+        rows = [{"src": r.src, "dst": r.dst, "props": r.props} for r in graph.rels_of_type(rel_type)]
         if rows:
             session.run(
                 f"UNWIND $rows AS row "
                 f"MATCH (a:{src_label} {{path: row.src}}) "
                 f"MATCH (b:{dst_label} {{path: row.dst}}) "
-                f"MERGE (a)-[:{rel_type}]->(b)",
+                f"MERGE (a)-[r:{rel_type}]->(b) "
+                f"SET r += row.props",
                 rows=rows,
             )

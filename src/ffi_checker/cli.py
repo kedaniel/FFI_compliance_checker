@@ -13,6 +13,9 @@ import argparse
 import sys
 
 from .arxml_parser import parse_arxml
+from .code import parse_c_sources, parse_map
+from .code.link import link_code
+from .code.model import CodeModel
 from .model import EcuModel
 
 
@@ -73,9 +76,58 @@ def print_observations(model: EcuModel) -> None:
             print(f"  - {w}")
 
 
+def print_code(model: EcuModel, code: CodeModel) -> None:
+    """Variables with owner and RAM region, then who writes what."""
+    links = link_code(model, code)
+    print("\nVariables:")
+    for v in sorted(code.variables.values(), key=lambda v: v.path):
+        owner = model.swcs[links.owners[v.path]] if v.path in links.owners else None
+        placed = code.link_section_of(v)
+        region = placed.region if placed else None
+        print(
+            f"  {v.name:22} owner={owner.name if owner else '-':14} "
+            f"ASIL={owner.asil.value if owner and owner.asil else '-':3} "
+            f"memmap={v.section or 'NONE (default section)'}  region={region or '-'}"
+        )
+
+    print("\nAccesses (runnable -> variable):")
+    for runnable, variable, kind in sorted(set(links.accesses)):
+        r, v = model.runnables[runnable], code.variables[variable]
+        print(f"  {r.name:18} {kind:10} {v.name}")
+
+    print("\nCode observations:")
+    found = False
+    for runnable, variable, kind in sorted(set(links.accesses)):
+        if kind == "read":
+            continue
+        owner_path = links.owners.get(variable)
+        if owner_path is None:
+            continue
+        r, v, owner = model.runnables[runnable], code.variables[variable], model.swcs[owner_path]
+        writer = model.swcs[r.swc]
+        if writer.path != owner.path and writer.asil and owner.asil and writer.asil.rank < owner.asil.rank:
+            found = True
+            print(
+                f"  [LOWER-ASIL-WRITE] {r.name} (SWC {writer.name}, ASIL {writer.asil.value}) "
+                f"{'writes' if kind == 'write' else 'takes the address of'} {v.name} "
+                f"(owner {owner.name}, ASIL {owner.asil.value})"
+            )
+    for v in code.variables.values():
+        if code.link_section_of(v) is None:
+            found = True
+            why = "defined outside any MemMap section" if v.section is None else "its section is not in the map"
+            print(f"  [UNPLACED-VARIABLE] {v.name}: {why}, so it lands in a default linker section")
+    if not found:
+        print("  none")
+    for w in code.warnings + links.warnings:
+        print(f"  warning: {w}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="FFI compliance checker (milestone 1)")
     parser.add_argument("arxml", nargs="+", help="ARXML file(s) of one ECU")
+    parser.add_argument("--code", nargs="+", metavar="PATH", help="C source files or folders")
+    parser.add_argument("--map", metavar="FILE", help="linker map file (simplified demo format)")
     parser.add_argument("--json", action="store_true", help="dump the parsed model as JSON")
     args = parser.parse_args(argv)
 
@@ -85,6 +137,11 @@ def main(argv: list[str] | None = None) -> int:
     else:
         print_mapping(model)
         print_observations(model)
+        if args.code:
+            code = parse_c_sources(args.code)
+            if args.map:
+                parse_map(args.map, code)
+            print_code(model, code)
     return 0
 
 

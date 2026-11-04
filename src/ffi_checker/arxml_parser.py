@@ -140,7 +140,9 @@ def parse_arxml(files: list[str | Path]) -> EcuModel:
 
         elif tag == "RUNNABLE-ENTITY":
             swc_path = _owning_swc(path, index)
-            model.runnables[path] = Runnable(name=name, path=path, swc=swc_path or "")
+            model.runnables[path] = Runnable(
+                name=name, path=path, swc=swc_path or "", symbol=child_text(el, "SYMBOL")
+            )
             if swc_path is None:
                 model.warnings.append(f"Runnable {path} is not inside a SW component")
 

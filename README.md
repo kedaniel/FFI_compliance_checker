@@ -32,7 +32,7 @@ ARXML + generated C + map file
 |---|-----------|-----------|--------|
 | 1 | Parse a synthetic ECU (ARXML) into Pydantic models | XML, AUTOSAR paths and ECUC, Pydantic, pytest | ✅ |
 | 2 | Load the model into **Neo4j** and query it with Cypher | Graph databases, Cypher | ✅ |
-| 3 | Parse generated C (MemMap sections) and the TASKING map file | Static code extraction | ⬜ |
+| 3 | Parse generated C (MemMap sections) and the linker map | Static code extraction | ✅ |
 | 4 | Memory-FFI rule engine with findings and evidence | Rules as code, traceability | ⬜ |
 | 5 | Explain findings with a local LLM (**Ollama** + **Pydantic AI**) | Prompting, structured output | ⬜ |
 | 6 | **RAG** over AUTOSAR specs and safety notes (**LlamaIndex** + **Chroma**) | Embeddings, chunking, retrieval | ⬜ |
@@ -193,3 +193,89 @@ lower_asil_in_partition: Runnables whose SWC has a LOWER ASIL than the partition
 3. Load the ECU twice without `--reset` and check node counts. Why are there no duplicates?
 4. Think ahead: in milestone 3 we add `(:Variable)` nodes with `[:WRITES]` relationships from
    runnables. Sketch the query "variables of an ASIL C SWC written by a QM runnable".
+
+## Milestone 3 walkthrough: generated C code and the linker map
+
+Milestone 1 told us which **partition** each runnable runs in. Milestone 3 adds the other
+half of memory FFI: **which data does each function touch, and where does that data live?**
+
+```
+Runnable ──reads/writes──► Variable ──declared in──► MemMap section ──placed by linker in──► RAM region
+(from ARXML)               (from C)                  (from C macros)                         (from map file)
+```
+
+### Run it (no database needed)
+
+```
+python -m ffi_checker examples/demo_ecu/DemoEcu.arxml --code examples/demo_ecu/src --map examples/demo_ecu/DemoEcu.map
+```
+
+New output after the milestone 1 part:
+
+```
+Variables:
+  BrakeCtrl_BrakeRequest owner=BrakeCtrl  ASIL=C  memmap=BRAKECTRL_VAR_ZERO_INIT_8BIT  region=RAM_ASIL_C_CORE0
+  Diag_UnmappedFlag      owner=Diagnostics ASIL=QM memmap=NONE (default section)       region=-
+  ...
+Code observations:
+  [LOWER-ASIL-WRITE] Diag_Run100ms (SWC Diagnostics, ASIL QM) writes BrakeCtrl_BrakeRequest (owner BrakeCtrl, ASIL C)
+  [UNPLACED-VARIABLE] Diag_UnmappedFlag: defined outside any MemMap section, ...
+```
+
+With the graph (Aura or local Neo4j), load code and map too, then run the new queries
+(on Windows `cmd`, keep the command on one line):
+
+```
+python -m ffi_checker.graph load examples/demo_ecu/DemoEcu.arxml --reset --code examples/demo_ecu/src --map examples/demo_ecu/DemoEcu.map
+python -m ffi_checker.graph query cross_partition_writes
+python -m ffi_checker.graph query-all
+```
+
+### What the demo contains (all synthetic)
+
+| File | Role |
+|------|------|
+| `examples/demo_ecu/src/*.c` | One file per SWC in generated style: `VAR(...)` variables wrapped in `START_SEC` / `STOP_SEC` MemMap macros, and one runnable function each. |
+| `examples/demo_ecu/DemoEcu.map` | Simplified linker map: RAM regions and where each section was placed. **Not** the real TASKING format (see below). |
+| `src/ffi_checker/code/c_parser.py` | Finds variables, their MemMap section, functions, and classifies every access as read, write or address-of. |
+| `src/ffi_checker/code/map_parser.py` | Reads regions and sections. The only file to replace when a real TASKING map is supported. |
+| `src/ffi_checker/code/link.py` | Joins code to ARXML: a function named like a runnable's `SYMBOL` belongs to that runnable and its SWC. A variable's owner is the SWC implemented in the same `.c` file. |
+
+Seeded issues (try to spot them in the C files first):
+
+| Issue | Where |
+|-------|-------|
+| QM runnable writes ASIL C data in **another partition** | `Diag_Run100ms` writes `BrakeCtrl_BrakeRequest` |
+| QM runnable writes ASIL C data **inside its own ASIL C partition** | `Hmi_Run20ms` takes the address of and writes `SpeedMon_Speed` |
+| Variable outside any MemMap section (lands in a default section) | `Diag_UnmappedFlag` |
+| QM and ASIL C data share one RAM region | `Hmi_Display` and `SpeedMon_Speed` in `RAM_ASIL_C_CORE1` |
+
+New graph queries: `variables`, `lower_asil_writers`, `cross_partition_writes`,
+`unplaced_variables`, `mixed_asil_regions`.
+
+### Known simplifications (to fix in later milestones)
+
+- **The map format is invented.** I don't have a real TASKING map file, and I don't want to
+  guess its layout. When you have a **sanitised** real one (names changed, only the memory
+  and section tables), the real parser goes into `map_parser.py`.
+- **Linker section matching is by name**: `.bss.<PREFIX>_<SECTION>` must end with the MemMap
+  section name. In real MICROSAR the link is made by `#pragma section` lines in the
+  `*_MemMap.h` files. Reading those is the proper way.
+- **Only direct accesses** inside the runnable function are seen. Calls to helper functions,
+  accesses through pointers, and RTE API calls (`Rte_Write_...`) are not followed yet.
+  Address-of is reported so that you at least know the data can be reached.
+- Regex parsing: fine for regular generated code, not for arbitrary C. tree-sitter or
+  libclang would replace `c_parser.py` later.
+- **Whether a write is allowed** depends on the MPU configuration (which partition may
+  write which region). That arrives with the rule engine in milestone 4. Today a
+  cross-partition write is an *observation*, not a verdict.
+
+### Exercises (milestone 3)
+
+1. In `HmiGateway.c`, remove the `SpeedMon_Speed = 0u;` line. What does `Hmi_Run20ms` show now? Why
+   is the address-of still reported?
+2. Add a second variable to `BrakeCtrl.c` inside the same MemMap section. Does the map need a new line?
+3. Move `Diag_UnmappedFlag` into a MemMap section but forget to add the section to the `.map` file.
+   Which observation fires, and what does its text say?
+4. Run `cross_partition_writes` in the Neo4j browser with `RETURN *` instead of the column list
+   and look at the picture.

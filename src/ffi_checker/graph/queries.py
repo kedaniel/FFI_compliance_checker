@@ -89,6 +89,68 @@ RETURN s.name AS swc, r.name AS runnable
 ORDER BY swc, runnable
 """,
     },
+    # ---- milestone 3: need the graph loaded with --code and --map ----
+    "variables": {
+        "description": "Every variable with its owner SWC, MemMap section, linker section and RAM region.",
+        "cypher": """
+MATCH (v:Variable)
+OPTIONAL MATCH (o:SwComponent)-[:OWNS_VARIABLE]->(v)
+OPTIONAL MATCH (v)-[:IN_SECTION]->(s:MemorySection)
+OPTIONAL MATCH (s)-[:PLACED_IN]->(m:MemoryRegion)
+RETURN v.name AS variable, o.name AS owner, o.asil AS owner_asil,
+       v.memmap_section AS memmap_section, m.name AS region
+ORDER BY variable
+""",
+    },
+    "lower_asil_writers": {
+        "description": "Runnables that write a variable owned by a SWC with a HIGHER ASIL.",
+        "cypher": """
+MATCH (r:Runnable)-[w:WRITES]->(v:Variable)<-[:OWNS_VARIABLE]-(o:SwComponent)
+MATCH (s:SwComponent)-[:HAS_RUNNABLE]->(r)
+WHERE s.asil_rank < o.asil_rank
+RETURN r.name AS runnable, s.name AS writer_swc, s.asil AS writer_asil,
+       v.name AS variable, o.name AS owner_swc, o.asil AS owner_asil, w.kind AS kind
+ORDER BY runnable, variable
+""",
+    },
+    "cross_partition_writes": {
+        "description": (
+            "Runnables that write a variable whose owner SWC runs in a DIFFERENT OS-Application. "
+            "These need an MPU permission (or must not happen)."
+        ),
+        "cypher": """
+MATCH (r:Runnable)-[w:WRITES]->(v:Variable)<-[:OWNS_VARIABLE]-(o:SwComponent)
+MATCH (r)-[:MAPPED_TO]->(:Task)<-[:OWNS_TASK]-(ra:OsApplication)
+MATCH (o)-[:HAS_RUNNABLE]->(:Runnable)-[:MAPPED_TO]->(:Task)<-[:OWNS_TASK]-(oa:OsApplication)
+WHERE ra <> oa
+RETURN DISTINCT r.name AS runnable, ra.name AS writer_os_app,
+       v.name AS variable, oa.name AS owner_os_app, w.kind AS kind
+ORDER BY runnable, variable
+""",
+    },
+    "unplaced_variables": {
+        "description": (
+            "Variables not in any known MemMap/linker section. They end up in a default "
+            "section that nobody has assigned to a partition."
+        ),
+        "cypher": """
+MATCH (v:Variable)
+WHERE NOT EXISTS { (v)-[:IN_SECTION]->(:MemorySection) }
+OPTIONAL MATCH (o:SwComponent)-[:OWNS_VARIABLE]->(v)
+RETURN v.name AS variable, v.file AS file, o.name AS owner
+ORDER BY variable
+""",
+    },
+    "mixed_asil_regions": {
+        "description": "RAM regions holding variables of SWCs with different ASIL levels.",
+        "cypher": f"""
+MATCH (o:SwComponent)-[:OWNS_VARIABLE]->(v:Variable)-[:IN_SECTION]->(:MemorySection)-[:PLACED_IN]->(m:MemoryRegion)
+WITH m, collect(DISTINCT o.asil_rank) AS ranks, collect(v.name) AS variables
+WHERE size(ranks) > 1
+RETURN m.name AS region, [x IN ranks | {_ASIL_NAMES}[x]] AS asil_levels, variables
+ORDER BY region
+""",
+    },
 }
 
 
