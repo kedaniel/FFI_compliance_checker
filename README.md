@@ -30,8 +30,8 @@ ARXML + generated C + map file
 
 | # | Milestone | You learn | Status |
 |---|-----------|-----------|--------|
-| 1 | Parse a synthetic ECU (ARXML) into Pydantic models | XML, AUTOSAR paths and ECUC, Pydantic, pytest | ✅ this PR |
-| 2 | Load the model into **Neo4j** and query it with Cypher | Graph databases | ⬜ |
+| 1 | Parse a synthetic ECU (ARXML) into Pydantic models | XML, AUTOSAR paths and ECUC, Pydantic, pytest | ✅ |
+| 2 | Load the model into **Neo4j** and query it with Cypher | Graph databases, Cypher | ✅ |
 | 3 | Parse generated C (MemMap sections) and the TASKING map file | Static code extraction | ⬜ |
 | 4 | Memory-FFI rule engine with findings and evidence | Rules as code, traceability | ⬜ |
 | 5 | Explain findings with a local LLM (**Ollama** + **Pydantic AI**) | Prompting, structured output | ⬜ |
@@ -94,7 +94,7 @@ SwComponent (ASIL) ─► Runnable ─► (Rte event-to-task mapping) ─► OsT
 - Only `OsTask` is considered; ISRs and BSW schedulables are not yet.
 - `EcucPartition` (the newer way to link SWCs to partitions) is not yet read.
 
-### Exercises
+### Exercises (milestone 1)
 
 1. Add a fifth SWC `Steering` (ASIL D) on Core1 in its own OS-Application. What does the
    `MIXED-CRITICALITY-CORE` observation say now?
@@ -103,3 +103,93 @@ SwComponent (ASIL) ─► Runnable ─► (Rte event-to-task mapping) ─► OsT
 3. Read ISRs (`OsIsr` containers, referenced by `OsAppIsrRef`) into the model.
 4. Run the parser on a real (company) ARXML **locally**. Which warnings appear?
    They show which simplifications matter for you.
+
+## Milestone 2 walkthrough: graph database
+
+The same model, now stored in **Neo4j** so FFI questions become graph queries.
+
+```
+(SwComponent {asil, asil_rank})-[:HAS_RUNNABLE]->(Runnable)-[:MAPPED_TO]->(Task)
+(OsApplication {trusted})-[:OWNS_TASK]->(Task)
+(OsApplication)-[:RUNS_ON]->(Core {core_id})
+```
+
+### 1. Get a Neo4j database (pick one)
+
+| Option | When | How |
+|--------|------|-----|
+| **Aura Free** (cloud, nothing to install) | Learning with the **synthetic** demo data only | console.neo4j.io → Create instance → Free. Save the credentials file it offers (the password is shown only once). |
+| **Local Neo4j** (Docker / Rancher Desktop, or Neo4j Desktop) | Anything with real project data | `docker compose up -d` (wait ~20 s), or create a local database in Neo4j Desktop. |
+
+### 2. Tell the tool how to connect
+
+Copy [`.env.example`](.env.example) to `.env` and fill in your URI and password:
+
+```powershell
+Copy-Item .env.example .env     # macOS/Linux: cp .env.example .env
+notepad .env
+```
+
+`.env` is git-ignored, so your password stays on your machine. Real environment
+variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) override the file if set.
+
+**Company network error `self-signed certificate in certificate chain`?** Your network
+re-signs HTTPS traffic. The tool already uses the operating system's certificate store
+(via `truststore`) to handle this; run `pip install -e ".[dev,graph]"` again to get it. If
+it still fails, as a last resort for the *synthetic* demo only, change `neo4j+s://` to
+`neo4j+ssc://` in `.env` (encrypted, but the certificate is not verified).
+
+### 3. Run it
+
+```bash
+pip install -e ".[dev,graph]"
+
+python -m ffi_checker.graph load examples/demo_ecu/DemoEcu.arxml --reset
+python -m ffi_checker.graph list         # named queries
+python -m ffi_checker.graph query-all
+
+$env:RUN_NEO4J_TESTS="1"; pytest         # also run the Neo4j integration tests
+                                         # (they WIPE the database first)
+```
+
+Then run `MATCH (n) RETURN n` to *see* your ECU as a graph: in Aura via **Query** on
+your instance, locally at **http://localhost:7474**. Click a node to see its properties.
+
+Without a database, the unit tests still run (`pytest`); the Neo4j tests are skipped.
+
+| File | What it does |
+|------|--------------|
+| `src/ffi_checker/graph/schema.py` | `EcuModel` → nodes and relationships. Pure Python, no database. |
+| `src/ffi_checker/graph/loader.py` | Writes the graph with `MERGE` + `UNWIND` (idempotent, batched) and unique constraints on `path`. |
+| `src/ffi_checker/graph/queries.py` | Named Cypher queries, each with a description. Read these first. |
+| `src/ffi_checker/graph/__main__.py` | `load`, `list`, `query`, `query-all` commands. |
+| `docker-compose.yml` | Local Neo4j Community (free). |
+| `.env.example` | Connection settings template. Copy to `.env`. |
+| `tests/test_graph.py` | Unit tests with a fake session, plus integration tests against a real Neo4j. |
+
+Expected result for the seeded issue:
+
+```
+lower_asil_in_partition: Runnables whose SWC has a LOWER ASIL than the partition they run in. ...
+  os_app=OsApp_AsilC_Core1, partition_asil=C, runnable=Hmi_Run20ms, swc=HmiGateway, asil=QM
+```
+
+### Cypher cheat sheet
+
+| Cypher | Meaning |
+|--------|---------|
+| `MATCH (a:OsApplication)-[:RUNS_ON]->(c:Core)` | find this pattern |
+| `WHERE a.trusted = true` | filter |
+| `WITH a, collect(s.asil) AS asils` | group (like SQL `GROUP BY`) and pass on |
+| `RETURN a.name, c.name` | output columns |
+| `MERGE (n:Core {path: $p})` | find or create |
+| `OPTIONAL MATCH` | like a LEFT JOIN: keep rows even without a match |
+
+### Exercises (milestone 2)
+
+1. In the Neo4j Browser, write a query that returns every runnable on `Core0` with its ASIL.
+2. Write a query for "QM partitions on the same core as a trusted partition". Why could that
+   matter for FFI? Add it to `QUERIES` with a test.
+3. Load the ECU twice without `--reset` and check node counts. Why are there no duplicates?
+4. Think ahead: in milestone 3 we add `(:Variable)` nodes with `[:WRITES]` relationships from
+   runnables. Sketch the query "variables of an ASIL C SWC written by a QM runnable".

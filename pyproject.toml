@@ -11,6 +11,7 @@ dependencies = ["pydantic>=2.5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+graph = ["neo4j>=5.20", "python-dotenv>=1.0", "truststore>=0.9"]
 
 [project.scripts]
 ffi-checker = "ffi_checker.cli:main"
@@ -20,3 +21,4 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["neo4j: needs a running Neo4j (set NEO4J_URI to enable)"]
