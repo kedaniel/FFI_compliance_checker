@@ -1,0 +1,76 @@
+{
+  "expected_findings": [
+    {
+      "id": "F01",
+      "rule": "R1_placement",
+      "severity": "error",
+      "symbol": "DiagLogger_RingBuf",
+      "module": "DiagLogger",
+      "group": "ASIL_D_DATA_tc0",
+      "detail": "QM object located inside ASIL-D partition"
+    },
+    {
+      "id": "F02",
+      "rule": "R1_placement",
+      "severity": "error",
+      "symbol": "TorqueArb_Limit",
+      "module": "TorqueArb",
+      "group": "QM_DATA_tc0",
+      "detail": "ASIL-D object located in QM-writable partition"
+    },
+    {
+      "id": "F03",
+      "rule": "R2_alignment",
+      "severity": "error",
+      "symbol": "_lc_ge_ASIL_D_DATA_tc1",
+      "address": "0x6000556c",
+      "detail": "MPU region end not 8-byte aligned"
+    },
+    {
+      "id": "F04",
+      "rule": "R3_guard_pad",
+      "severity": "error",
+      "group": "Mpu_ReservedCorePad_tc2",
+      "detail": "guard pad size 0 between ASIL_D_DATA_tc2 and QM_DATA_tc2"
+    },
+    {
+      "id": "F05",
+      "rule": "R4_xref",
+      "severity": "warning",
+      "symbol": "SafetyMon_State",
+      "referenced_by": "InfoGw",
+      "detail": "QM module references ASIL-D data (core 0)"
+    },
+    {
+      "id": "F06",
+      "rule": "R5_wildcard",
+      "severity": "error",
+      "symbol": "SteerMon_Calib",
+      "module": "SteerMon",
+      "group": "WILDCARD_DATA",
+      "detail": "ASIL-D object fell into shared wildcard group (missing MemMap)"
+    },
+    {
+      "id": "F07",
+      "rule": "R4_xref",
+      "severity": "warning",
+      "symbol": "SteerMon_Plaus",
+      "referenced_by": "Telemetry",
+      "detail": "QM module references ASIL-D data (core 2)"
+    }
+  ],
+  "expected_non_findings": [
+    {
+      "id": "I01",
+      "detail": "SpeedEst_Out (ASIL-D, core 1) referenced by TorqueArb (ASIL-D, core 0): cross-core, same ASIL - not an FFI error"
+    },
+    {
+      "id": "I02",
+      "detail": "SafetyMon / InfoGw reference Com_IpduBuffer in SHARED_DATA: allowed shared BSW buffer"
+    },
+    {
+      "id": "I03",
+      "detail": "SafetyMon and DiagLogger reference Dem_EventStatus in WILDCARD_DATA: BSW data, allowed"
+    }
+  ]
+}

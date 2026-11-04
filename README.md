@@ -279,3 +279,93 @@ New graph queries: `variables`, `lower_asil_writers`, `cross_partition_writes`,
    Which observation fires, and what does its text say?
 4. Run `cross_partition_writes` in the Neo4j browser with `RETURN *` instead of the column list
    and look at the picture.
+
+## Milestone 4 walkthrough: the rule engine
+
+Until now the tool printed *observations*. Milestone 4 produces **findings**: a rule ID, a
+severity, a detail text, and **evidence** that points to the exact map line and spec entry.
+No LLM is involved. The same input always gives the same result, which is what an assessor needs.
+
+It works on two inputs (and no ARXML):
+
+| Input | File | Meaning |
+|-------|------|---------|
+| Linker map | `examples/tc39x/synthetic_tc39x.map` | where everything **is** (TASKING-style tables: sections, symbols, cross references, group ranges) |
+| Partition spec | `examples/tc39x/partition_spec.json` | where everything **should be**: partitions, their groups and modules, module ASIL, shared groups, MPU granularity, guard pad size |
+
+Both are synthetic. A real project's spec comes from its safety concept and OS/MPU
+configuration. Later we can derive more of it from ARXML.
+
+### Run it (no database)
+
+```
+python -m ffi_checker.rules --map examples/tc39x/synthetic_tc39x.map --spec examples/tc39x/partition_spec.json --expected examples/tc39x/expected_findings.json --out report.json
+```
+
+Expected end of the output:
+
+```
+5 error(s), 2 warning(s) on TC39x (synthetic demo ECU)
+Comparison with expected_findings.json: matched 7, missing 0, unexpected 0, severity mismatches 0
+```
+
+### The five rules
+
+| Rule | Checks | Severity |
+|------|--------|----------|
+| R1 placement | every object sits in a group owned by a partition that **lists its module** and has **at least its ASIL**; shared groups only accept the ASIL classes they allow | error |
+| R2 alignment | every `_lc_gb_` / `_lc_ge_` MPU region boundary is a multiple of the MPU granularity (8 bytes) | error |
+| R3 guard pad | between ASIL data and QM data of each core there is a gap of at least `min_bytes` (16) | error |
+| R4 xref | a QM module references data defined by an ASIL module. The map cannot tell a read from a write | warning |
+| R5 wildcard | no ASIL-rated object in the catch-all `WILDCARD_DATA` group (it means a MemMap section is missing) | error |
+
+OS and BSW modules have no ASIL level of their own: they only have to be listed in the
+partition they live in.
+
+### How we know the engine is right: a test oracle
+
+The synthetic map was built with **7 known problems and 3 known non-problems**
+(`examples/tc39x/expected_findings.json`). `tests/test_rules.py` requires the engine to find
+exactly those: nothing missing and nothing extra. Extra findings are as bad as missing ones,
+because a checker that cries wolf is ignored.
+
+Non-problems that must stay quiet: a cross-core reference between two ASIL D modules, a shared BSW
+buffer, and BSW data in the wildcard group.
+
+### Evidence report
+
+`--out report.json` writes an audit record: tool version, UTC time, `"llm_used": false`, the
+SHA-256 of the map and the spec, and every finding with its evidence. Change one byte of an
+input and the hash changes, so a finding can always be tied to the exact files it came from.
+
+### Files
+
+| File | What it does |
+|------|--------------|
+| `src/ffi_checker/linkmap/tasking_parser.py` | Reads the boxed tables of the map by recognising their header rows. Every row keeps its line number. |
+| `src/ffi_checker/spec.py` | The spec as Pydantic models. |
+| `src/ffi_checker/rules/memory.py` | The five rules as plain functions `(map, spec) -> findings`. |
+| `src/ffi_checker/rules/compare.py` | Compares findings with an expected list. |
+| `src/ffi_checker/rules/__main__.py` | The command line and the evidence report. |
+
+### Known simplifications
+
+- The parser was written against a **synthetic** map. A real TASKING map may have other columns,
+  wrapped lines or extra tables. Warnings show what it could not read, and the header sets at the
+  top of `tasking_parser.py` are the place to adapt.
+- The spec is written by hand. Connecting it to the ARXML model of milestones 1 to 3
+  (partitions and runnables from ARXML, variables from C code) is a later step.
+- R4 only looks at QM modules reading ASIL data. Lower-ASIL to higher-ASIL (for example B to D)
+  is a small extension.
+- Only data is checked. Code placement (`.text`) and timing are out of scope for now.
+
+### Exercises (milestone 4)
+
+1. Open the map and fix the alignment problem by changing `_lc_ge_ASIL_D_DATA_tc1` from `0x6000556c`
+   to `0x60005570`. Which finding disappears, and why is the pad in front of it still fine?
+2. Move `SteerMon_Calib` from `WILDCARD_DATA` to `ASIL_D_DATA_tc2` in the Locate Result table.
+   Which rule now complains, and why is that a different problem?
+3. Add a rule R6 of your own in `memory.py` (for example: every partition's groups must be
+   contiguous) and add a seeded problem and an expected finding for it.
+4. Open `report.json` and find the evidence for R3. Could an assessor check it using only the
+   map file and the spec?

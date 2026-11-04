@@ -1,0 +1,321 @@
+****************************************************************************************************
+*  TASKING VX-toolset for TriCore: object linker -- SYNTHETIC SAMPLE MAP
+*  Generated for FFI-checker proof of concept. All module/symbol names and layouts are FICTIONAL.
+*  Date: 2026-11-04
+****************************************************************************************************
+
+********************************************  Tool and Invocation  ********************************************
+
+Tool         : ltc (synthetic)
+Invocation   : ltc -o demo_ecu.elf -d demo_tc39x.lsl -M demo_ecu.map --map-file-format=+sections,+symbols,+crossref
+
+*********************************************  Processed Files  ***********************************************
+
+  +-------------------------------------------------------------+
+  | File         | From archive | Symbol causing the extraction |
+  |=============================================================|
+  | BodyCtl.o    |              |                               |
+  | Bsw_Com.o    |              |                               |
+  | Bsw_Dem.o    |              |                               |
+  | Bsw_Det.o    |              |                               |
+  | Bsw_EcuM.o   |              |                               |
+  | Bsw_NvM.o    |              |                               |
+  | Bsw_PduR.o   |              |                               |
+  | DiagLogger.o |              |                               |
+  | InfoGw.o     |              |                               |
+  | Os_Core0.o   |              |                               |
+  | Os_Core1.o   |              |                               |
+  | Os_Core2.o   |              |                               |
+  | Os_Shared.o  |              |                               |
+  | SafetyMon.o  |              |                               |
+  | SpeedEst.o   |              |                               |
+  | SteerMon.o   |              |                               |
+  | Telemetry.o  |              |                               |
+  | TorqueArb.o  |              |                               |
+  +-------------------------------------------------------------+
+
+***********************************************  Link Result  *************************************************
+
+  +--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+  | [in] File    | [in] Section                             | [in] Size (MAU) | [out] Offset | [out] Section                                  | [out] Size (MAU) |
+  |==============================================================================================================================================================|
+  | Os_Core0.o   | .bss.Os_Core0.Os_Core0_Dyn               | 0x00000120      | 0x00000000   | .bss.Os_Core0.Os_Core0_Dyn (104)               | 0x00000120       |
+  | Os_Core0.o   | .bss.Os_Core0.Os_Core0_TaskDyn           | 0x00000080      | 0x00000000   | .bss.Os_Core0.Os_Core0_TaskDyn (105)           | 0x00000080       |
+  | SafetyMon.o  | .bss.SafetyMon.SafetyMon_State           | 0x00000040      | 0x00000000   | .bss.SafetyMon.SafetyMon_State (106)           | 0x00000040       |
+  | SafetyMon.o  | .data.SafetyMon.SafetyMon_Counters       | 0x00000020      | 0x00000000   | .data.SafetyMon.SafetyMon_Counters (107)       | 0x00000020       |
+  | TorqueArb.o  | .bss.TorqueArb.TorqueArb_Request         | 0x00000018      | 0x00000000   | .bss.TorqueArb.TorqueArb_Request (108)         | 0x00000018       |
+  | DiagLogger.o | .bss.DiagLogger.DiagLogger_RingBuf       | 0x00000200      | 0x00000000   | .bss.DiagLogger.DiagLogger_RingBuf (109)       | 0x00000200       |
+  | DiagLogger.o | .data.DiagLogger.DiagLogger_Cfg          | 0x00000010      | 0x00000000   | .data.DiagLogger.DiagLogger_Cfg (111)          | 0x00000010       |
+  | InfoGw.o     | .bss.InfoGw.InfoGw_RxBuf                 | 0x00000100      | 0x00000000   | .bss.InfoGw.InfoGw_RxBuf (112)                 | 0x00000100       |
+  | InfoGw.o     | .bss.InfoGw.InfoGw_State                 | 0x00000008      | 0x00000000   | .bss.InfoGw.InfoGw_State (113)                 | 0x00000008       |
+  | TorqueArb.o  | .data.TorqueArb.TorqueArb_Limit          | 0x00000008      | 0x00000000   | .data.TorqueArb.TorqueArb_Limit (114)          | 0x00000008       |
+  | Bsw_EcuM.o   | .bss.Bsw_EcuM.EcuM_Core0_State           | 0x00000020      | 0x00000000   | .bss.Bsw_EcuM.EcuM_Core0_State (115)           | 0x00000020       |
+  | Bsw_Det.o    | .bss.Bsw_Det.Det_Core0_Log               | 0x00000040      | 0x00000000   | .bss.Bsw_Det.Det_Core0_Log (116)               | 0x00000040       |
+  | Os_Core1.o   | .bss.Os_Core1.Os_Core1_Dyn               | 0x00000100      | 0x00000000   | .bss.Os_Core1.Os_Core1_Dyn (120)               | 0x00000100       |
+  | SpeedEst.o   | .bss.SpeedEst.SpeedEst_Filter            | 0x00000060      | 0x00000000   | .bss.SpeedEst.SpeedEst_Filter (121)            | 0x00000060       |
+  | SpeedEst.o   | .bss.SpeedEst.SpeedEst_Out               | 0x0000000c      | 0x00000000   | .bss.SpeedEst.SpeedEst_Out (122)               | 0x0000000c       |
+  | BodyCtl.o    | .bss.BodyCtl.BodyCtl_Lamps               | 0x00000010      | 0x00000000   | .bss.BodyCtl.BodyCtl_Lamps (124)               | 0x00000010       |
+  | BodyCtl.o    | .bss.BodyCtl.BodyCtl_Doors               | 0x00000010      | 0x00000000   | .bss.BodyCtl.BodyCtl_Doors (125)               | 0x00000010       |
+  | Bsw_EcuM.o   | .bss.Bsw_EcuM.EcuM_Core1_State           | 0x00000020      | 0x00000000   | .bss.Bsw_EcuM.EcuM_Core1_State (126)           | 0x00000020       |
+  | Os_Core2.o   | .bss.Os_Core2.Os_Core2_Dyn               | 0x00000100      | 0x00000000   | .bss.Os_Core2.Os_Core2_Dyn (130)               | 0x00000100       |
+  | SteerMon.o   | .bss.SteerMon.SteerMon_Angle             | 0x00000010      | 0x00000000   | .bss.SteerMon.SteerMon_Angle (131)             | 0x00000010       |
+  | SteerMon.o   | .bss.SteerMon.SteerMon_Plaus             | 0x00000020      | 0x00000000   | .bss.SteerMon.SteerMon_Plaus (132)             | 0x00000020       |
+  | Telemetry.o  | .bss.Telemetry.Telemetry_Frame           | 0x00000080      | 0x00000000   | .bss.Telemetry.Telemetry_Frame (133)           | 0x00000080       |
+  | Bsw_EcuM.o   | .bss.Bsw_EcuM.EcuM_Core2_State           | 0x00000020      | 0x00000000   | .bss.Bsw_EcuM.EcuM_Core2_State (134)           | 0x00000020       |
+  | Bsw_Com.o    | .bss.Bsw_Com.Com_IpduBuffer              | 0x00000400      | 0x00000000   | .bss.Bsw_Com.Com_IpduBuffer (135)              | 0x00000400       |
+  | Bsw_PduR.o   | .bss.Bsw_PduR.PduR_Buffer                | 0x00000200      | 0x00000000   | .bss.Bsw_PduR.PduR_Buffer (136)                | 0x00000200       |
+  | Bsw_NvM.o    | .bss.Bsw_NvM.NvM_RamMirror               | 0x00000800      | 0x00000000   | .bss.Bsw_NvM.NvM_RamMirror (137)               | 0x00000800       |
+  | Bsw_Dem.o    | .bss.Bsw_Dem.Dem_EventStatus             | 0x00000100      | 0x00000000   | .bss.Bsw_Dem.Dem_EventStatus (138)             | 0x00000100       |
+  | SteerMon.o   | .data.SteerMon.SteerMon_Calib            | 0x00000040      | 0x00000000   | .data.SteerMon.SteerMon_Calib (139)            | 0x00000040       |
+  | Os_Shared.o  | .bss.Os_Shared.Os_Spinlocks              | 0x00000040      | 0x00000000   | .bss.Os_Shared.Os_Spinlocks (140)              | 0x00000040       |
+  | Os_Shared.o  | .bss.Os_Shared.Os_CoreStatus             | 0x00000020      | 0x00000000   | .bss.Os_Shared.Os_CoreStatus (141)             | 0x00000020       |
+  | Os_Core0.o   | .text.Os_Core0.Os_Core0_Dispatch         | 0x00000400      | 0x00000000   | .text.Os_Core0.Os_Core0_Dispatch (142)         | 0x00000400       |
+  | Os_Core1.o   | .text.Os_Core1.Os_Core1_Dispatch         | 0x00000400      | 0x00000000   | .text.Os_Core1.Os_Core1_Dispatch (143)         | 0x00000400       |
+  | Os_Core2.o   | .text.Os_Core2.Os_Core2_Dispatch         | 0x00000400      | 0x00000000   | .text.Os_Core2.Os_Core2_Dispatch (144)         | 0x00000400       |
+  | SafetyMon.o  | .text.SafetyMon.SafetyMon_MainFunction   | 0x000002a0      | 0x00000000   | .text.SafetyMon.SafetyMon_MainFunction (145)   | 0x000002a0       |
+  | TorqueArb.o  | .text.TorqueArb.TorqueArb_MainFunction   | 0x000001c8      | 0x00000000   | .text.TorqueArb.TorqueArb_MainFunction (146)   | 0x000001c8       |
+  | DiagLogger.o | .text.DiagLogger.DiagLogger_MainFunction | 0x00000110      | 0x00000000   | .text.DiagLogger.DiagLogger_MainFunction (147) | 0x00000110       |
+  | InfoGw.o     | .text.InfoGw.InfoGw_MainFunction         | 0x00000340      | 0x00000000   | .text.InfoGw.InfoGw_MainFunction (148)         | 0x00000340       |
+  | SpeedEst.o   | .text.SpeedEst.SpeedEst_MainFunction     | 0x00000220      | 0x00000000   | .text.SpeedEst.SpeedEst_MainFunction (149)     | 0x00000220       |
+  | BodyCtl.o    | .text.BodyCtl.BodyCtl_MainFunction       | 0x00000180      | 0x00000000   | .text.BodyCtl.BodyCtl_MainFunction (150)       | 0x00000180       |
+  | SteerMon.o   | .text.SteerMon.SteerMon_MainFunction     | 0x00000260      | 0x00000000   | .text.SteerMon.SteerMon_MainFunction (151)     | 0x00000260       |
+  | Telemetry.o  | .text.Telemetry.Telemetry_MainFunction   | 0x00000150      | 0x00000000   | .text.Telemetry.Telemetry_MainFunction (152)   | 0x00000150       |
+  | Bsw_Com.o    | .text.Bsw_Com.Com_MainFunctionRx         | 0x00000500      | 0x00000000   | .text.Bsw_Com.Com_MainFunctionRx (153)         | 0x00000500       |
+  | Bsw_PduR.o   | .text.Bsw_PduR.PduR_RxIndication         | 0x00000200      | 0x00000000   | .text.Bsw_PduR.PduR_RxIndication (154)         | 0x00000200       |
+  | Bsw_NvM.o    | .text.Bsw_NvM.NvM_MainFunction           | 0x00000600      | 0x00000000   | .text.Bsw_NvM.NvM_MainFunction (155)           | 0x00000600       |
+  | Bsw_Dem.o    | .text.Bsw_Dem.Dem_MainFunction           | 0x00000480      | 0x00000000   | .text.Bsw_Dem.Dem_MainFunction (156)           | 0x00000480       |
+  | Bsw_EcuM.o   | .text.Bsw_EcuM.EcuM_Init                 | 0x00000300      | 0x00000000   | .text.Bsw_EcuM.EcuM_Init (157)                 | 0x00000300       |
+  | Bsw_Det.o    | .text.Bsw_Det.Det_ReportError            | 0x00000080      | 0x00000000   | .text.Bsw_Det.Det_ReportError (158)            | 0x00000080       |
+  +--------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+*********************************************  Cross References  **********************************************
+
+  +-------------------------------------------------------------------------------------------------------------------+
+  | Symbol            | Defined in  | Definition section               | Referenced in                                |
+  |===================================================================================================================|
+  | SafetyMon_State   | SafetyMon.o | .bss.SafetyMon.SafetyMon_State   | SafetyMon.o, InfoGw.o                        |
+  | TorqueArb_Request | TorqueArb.o | .bss.TorqueArb.TorqueArb_Request | TorqueArb.o, SafetyMon.o                     |
+  | Com_IpduBuffer    | Bsw_Com.o   | .bss.Bsw_Com.Com_IpduBuffer      | Bsw_Com.o, Bsw_PduR.o, SafetyMon.o, InfoGw.o |
+  | InfoGw_RxBuf      | InfoGw.o    | .bss.InfoGw.InfoGw_RxBuf         | InfoGw.o, Bsw_Com.o                          |
+  | SpeedEst_Out      | SpeedEst.o  | .bss.SpeedEst.SpeedEst_Out       | SpeedEst.o, TorqueArb.o                      |
+  | BodyCtl_Lamps     | BodyCtl.o   | .bss.BodyCtl.BodyCtl_Lamps       | BodyCtl.o, Bsw_Com.o                         |
+  | Telemetry_Frame   | Telemetry.o | .bss.Telemetry.Telemetry_Frame   | Telemetry.o, Bsw_Com.o                       |
+  | SteerMon_Plaus    | SteerMon.o  | .bss.SteerMon.SteerMon_Plaus     | SteerMon.o, Telemetry.o                      |
+  | Os_Spinlocks      | Os_Shared.o | .bss.Os_Shared.Os_Spinlocks      | Os_Core0.o, Os_Core1.o, Os_Core2.o           |
+  | Dem_EventStatus   | Bsw_Dem.o   | .bss.Bsw_Dem.Dem_EventStatus     | Bsw_Dem.o, SafetyMon.o, DiagLogger.o         |
+  +-------------------------------------------------------------------------------------------------------------------+
+
+*********************************************  Locate Result  *************************************************
+
+* Sections
+  ========
+
+  + Space mpe:vtc:linear (MAU = 8bit)
+
+    +-------------------------------------------------------------------------------------------------------------------------------------------+
+    | Chip       | Group                   | Section                                        | Size (MAU) | Space addr | Chip addr  | Alignment  |
+    |===========================================================================================================================================|
+    | mpe:dspr2  | ustack_tc2              | ustack_tc2 (127)                               | 0x00001000 | 0x50000000 | 0x00000000 | 0x00000008 |
+    | mpe:dspr2  | istack_tc2              | istack_tc2 (128)                               | 0x00000400 | 0x50001000 | 0x00001000 | 0x00000008 |
+    | mpe:dspr2  | csa_tc2                 | csa_tc2 (129)                                  | 0x00004000 | 0x50001400 | 0x00001400 | 0x00000040 |
+    | mpe:dspr2  | OS_DATA_tc2             | .bss.Os_Core2.Os_Core2_Dyn (130)               | 0x00000100 | 0x50005400 | 0x00005400 | 0x00000004 |
+    | mpe:dspr2  | ASIL_D_DATA_tc2         | .bss.SteerMon.SteerMon_Angle (131)             | 0x00000010 | 0x50005500 | 0x00005500 | 0x00000004 |
+    | mpe:dspr2  | ASIL_D_DATA_tc2         | .bss.SteerMon.SteerMon_Plaus (132)             | 0x00000020 | 0x50005510 | 0x00005510 | 0x00000004 |
+    | mpe:dspr2  | QM_DATA_tc2             | .bss.Telemetry.Telemetry_Frame (133)           | 0x00000080 | 0x50005530 | 0x00005530 | 0x00000004 |
+    | mpe:dspr2  | CORE_DATA_tc2           | .bss.Bsw_EcuM.EcuM_Core2_State (134)           | 0x00000020 | 0x500055b0 | 0x000055b0 | 0x00000004 |
+    | mpe:dspr1  | ustack_tc1              | ustack_tc1 (117)                               | 0x00001000 | 0x60000000 | 0x00000000 | 0x00000008 |
+    | mpe:dspr1  | istack_tc1              | istack_tc1 (118)                               | 0x00000400 | 0x60001000 | 0x00001000 | 0x00000008 |
+    | mpe:dspr1  | csa_tc1                 | csa_tc1 (119)                                  | 0x00004000 | 0x60001400 | 0x00001400 | 0x00000040 |
+    | mpe:dspr1  | OS_DATA_tc1             | .bss.Os_Core1.Os_Core1_Dyn (120)               | 0x00000100 | 0x60005400 | 0x00005400 | 0x00000004 |
+    | mpe:dspr1  | ASIL_D_DATA_tc1         | .bss.SpeedEst.SpeedEst_Filter (121)            | 0x00000060 | 0x60005500 | 0x00005500 | 0x00000004 |
+    | mpe:dspr1  | ASIL_D_DATA_tc1         | .bss.SpeedEst.SpeedEst_Out (122)               | 0x0000000c | 0x60005560 | 0x00005560 | 0x00000004 |
+    | mpe:dspr1  | Mpu_ReservedCorePad_tc1 | .bss.Mpu_ReservedCorePad_tc1 (123)             | 0x00000010 | 0x60005570 | 0x00005570 | 0x00000008 |
+    | mpe:dspr1  | QM_DATA_tc1             | .bss.BodyCtl.BodyCtl_Lamps (124)               | 0x00000010 | 0x60005580 | 0x00005580 | 0x00000004 |
+    | mpe:dspr1  | QM_DATA_tc1             | .bss.BodyCtl.BodyCtl_Doors (125)               | 0x00000010 | 0x60005590 | 0x00005590 | 0x00000004 |
+    | mpe:dspr1  | CORE_DATA_tc1           | .bss.Bsw_EcuM.EcuM_Core1_State (126)           | 0x00000020 | 0x600055a0 | 0x000055a0 | 0x00000004 |
+    | mpe:dspr0  | ustack_tc0              | ustack_tc0 (101)                               | 0x00001000 | 0x70000000 | 0x00000000 | 0x00000008 |
+    | mpe:dspr0  | istack_tc0              | istack_tc0 (102)                               | 0x00000400 | 0x70001000 | 0x00001000 | 0x00000008 |
+    | mpe:dspr0  | csa_tc0                 | csa_tc0 (103)                                  | 0x00004000 | 0x70001400 | 0x00001400 | 0x00000040 |
+    | mpe:dspr0  | OS_DATA_tc0             | .bss.Os_Core0.Os_Core0_Dyn (104)               | 0x00000120 | 0x70005400 | 0x00005400 | 0x00000004 |
+    | mpe:dspr0  | OS_DATA_tc0             | .bss.Os_Core0.Os_Core0_TaskDyn (105)           | 0x00000080 | 0x70005520 | 0x00005520 | 0x00000004 |
+    | mpe:dspr0  | ASIL_D_DATA_tc0         | .bss.SafetyMon.SafetyMon_State (106)           | 0x00000040 | 0x700055a0 | 0x000055a0 | 0x00000004 |
+    | mpe:dspr0  | ASIL_D_DATA_tc0         | .data.SafetyMon.SafetyMon_Counters (107)       | 0x00000020 | 0x700055e0 | 0x000055e0 | 0x00000004 |
+    | mpe:dspr0  | ASIL_D_DATA_tc0         | .bss.TorqueArb.TorqueArb_Request (108)         | 0x00000018 | 0x70005600 | 0x00005600 | 0x00000004 |
+    | mpe:dspr0  | ASIL_D_DATA_tc0         | .bss.DiagLogger.DiagLogger_RingBuf (109)       | 0x00000200 | 0x70005618 | 0x00005618 | 0x00000004 |
+    | mpe:dspr0  | Mpu_ReservedCorePad_tc0 | .bss.Mpu_ReservedCorePad_tc0 (110)             | 0x00000010 | 0x70005818 | 0x00005818 | 0x00000008 |
+    | mpe:dspr0  | QM_DATA_tc0             | .data.DiagLogger.DiagLogger_Cfg (111)          | 0x00000010 | 0x70005828 | 0x00005828 | 0x00000004 |
+    | mpe:dspr0  | QM_DATA_tc0             | .bss.InfoGw.InfoGw_RxBuf (112)                 | 0x00000100 | 0x70005838 | 0x00005838 | 0x00000004 |
+    | mpe:dspr0  | QM_DATA_tc0             | .bss.InfoGw.InfoGw_State (113)                 | 0x00000008 | 0x70005938 | 0x00005938 | 0x00000004 |
+    | mpe:dspr0  | QM_DATA_tc0             | .data.TorqueArb.TorqueArb_Limit (114)          | 0x00000008 | 0x70005940 | 0x00005940 | 0x00000004 |
+    | mpe:dspr0  | CORE_DATA_tc0           | .bss.Bsw_EcuM.EcuM_Core0_State (115)           | 0x00000020 | 0x70005948 | 0x00005948 | 0x00000004 |
+    | mpe:dspr0  | CORE_DATA_tc0           | .bss.Bsw_Det.Det_Core0_Log (116)               | 0x00000040 | 0x70005968 | 0x00005968 | 0x00000004 |
+    | mpe:pfls0  |                         | .text.Os_Core0.Os_Core0_Dispatch (142)         | 0x00000400 | 0x80000000 | 0x00000000 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Os_Core1.Os_Core1_Dispatch (143)         | 0x00000400 | 0x80000400 | 0x00000400 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Os_Core2.Os_Core2_Dispatch (144)         | 0x00000400 | 0x80000800 | 0x00000800 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.SafetyMon.SafetyMon_MainFunction (145)   | 0x000002a0 | 0x80000c00 | 0x00000c00 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.TorqueArb.TorqueArb_MainFunction (146)   | 0x000001c8 | 0x80000ea0 | 0x00000ea0 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.DiagLogger.DiagLogger_MainFunction (147) | 0x00000110 | 0x80001068 | 0x00001068 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.InfoGw.InfoGw_MainFunction (148)         | 0x00000340 | 0x80001178 | 0x00001178 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.SpeedEst.SpeedEst_MainFunction (149)     | 0x00000220 | 0x800014b8 | 0x000014b8 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.BodyCtl.BodyCtl_MainFunction (150)       | 0x00000180 | 0x800016d8 | 0x000016d8 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.SteerMon.SteerMon_MainFunction (151)     | 0x00000260 | 0x80001858 | 0x00001858 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Telemetry.Telemetry_MainFunction (152)   | 0x00000150 | 0x80001ab8 | 0x00001ab8 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_Com.Com_MainFunctionRx (153)         | 0x00000500 | 0x80001c08 | 0x00001c08 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_PduR.PduR_RxIndication (154)         | 0x00000200 | 0x80002108 | 0x00002108 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_NvM.NvM_MainFunction (155)           | 0x00000600 | 0x80002308 | 0x00002308 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_Dem.Dem_MainFunction (156)           | 0x00000480 | 0x80002908 | 0x00002908 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_EcuM.EcuM_Init (157)                 | 0x00000300 | 0x80002d88 | 0x00002d88 | 0x00000002 |
+    | mpe:pfls0  |                         | .text.Bsw_Det.Det_ReportError (158)            | 0x00000080 | 0x80003088 | 0x00003088 | 0x00000002 |
+    | mpe:lmuram | SHARED_DATA             | .bss.Bsw_Com.Com_IpduBuffer (135)              | 0x00000400 | 0x90000000 | 0x00000000 | 0x00000004 |
+    | mpe:lmuram | SHARED_DATA             | .bss.Bsw_PduR.PduR_Buffer (136)                | 0x00000200 | 0x90000400 | 0x00000400 | 0x00000004 |
+    | mpe:lmuram | SHARED_DATA             | .bss.Bsw_NvM.NvM_RamMirror (137)               | 0x00000800 | 0x90000600 | 0x00000600 | 0x00000004 |
+    | mpe:lmuram | WILDCARD_DATA           | .bss.Bsw_Dem.Dem_EventStatus (138)             | 0x00000100 | 0x90000e00 | 0x00000e00 | 0x00000004 |
+    | mpe:lmuram | WILDCARD_DATA           | .data.SteerMon.SteerMon_Calib (139)            | 0x00000040 | 0x90000f00 | 0x00000f00 | 0x00000004 |
+    | mpe:lmuram | OS_SHARED_NOCACHE_DATA  | .bss.Os_Shared.Os_Spinlocks (140)              | 0x00000040 | 0xb0010000 | 0x00010000 | 0x00000004 |
+    | mpe:lmuram | OS_SHARED_NOCACHE_DATA  | .bss.Os_Shared.Os_CoreStatus (141)             | 0x00000020 | 0xb0010040 | 0x00010040 | 0x00000004 |
+    +-------------------------------------------------------------------------------------------------------------------------------------------+
+
+* Symbols (sorted on address)
+  ===========================
+
+    +-----------------------------------------------------------------------------------------------------+
+    | Name                           | Space addr | Size       | Section                                  |
+    |=====================================================================================================|
+    | _lc_gb_ustack_tc2              | 0x50000000 |            |                                          |
+    | _lc_gb_istack_tc2              | 0x50001000 |            |                                          |
+    | _lc_ge_ustack_tc2              | 0x50001000 |            |                                          |
+    | _lc_gb_csa_tc2                 | 0x50001400 |            |                                          |
+    | _lc_ge_istack_tc2              | 0x50001400 |            |                                          |
+    | Os_Core2_Dyn                   | 0x50005400 | 0x00000100 | .bss.Os_Core2.Os_Core2_Dyn               |
+    | _lc_gb_OS_DATA_tc2             | 0x50005400 |            |                                          |
+    | _lc_ge_csa_tc2                 | 0x50005400 |            |                                          |
+    | SteerMon_Angle                 | 0x50005500 | 0x00000010 | .bss.SteerMon.SteerMon_Angle             |
+    | _lc_gb_ASIL_D_DATA_tc2         | 0x50005500 |            |                                          |
+    | _lc_ge_OS_DATA_tc2             | 0x50005500 |            |                                          |
+    | SteerMon_Plaus                 | 0x50005510 | 0x00000020 | .bss.SteerMon.SteerMon_Plaus             |
+    | Telemetry_Frame                | 0x50005530 | 0x00000080 | .bss.Telemetry.Telemetry_Frame           |
+    | _lc_gb_Mpu_ReservedCorePad_tc2 | 0x50005530 |            |                                          |
+    | _lc_gb_QM_DATA_tc2             | 0x50005530 |            |                                          |
+    | _lc_ge_ASIL_D_DATA_tc2         | 0x50005530 |            |                                          |
+    | _lc_ge_Mpu_ReservedCorePad_tc2 | 0x50005530 |            |                                          |
+    | EcuM_Core2_State               | 0x500055b0 | 0x00000020 | .bss.Bsw_EcuM.EcuM_Core2_State           |
+    | _lc_gb_CORE_DATA_tc2           | 0x500055b0 |            |                                          |
+    | _lc_ge_QM_DATA_tc2             | 0x500055b0 |            |                                          |
+    | _lc_ge_CORE_DATA_tc2           | 0x500055d0 |            |                                          |
+    | _lc_gb_ustack_tc1              | 0x60000000 |            |                                          |
+    | _lc_gb_istack_tc1              | 0x60001000 |            |                                          |
+    | _lc_ge_ustack_tc1              | 0x60001000 |            |                                          |
+    | _lc_gb_csa_tc1                 | 0x60001400 |            |                                          |
+    | _lc_ge_istack_tc1              | 0x60001400 |            |                                          |
+    | Os_Core1_Dyn                   | 0x60005400 | 0x00000100 | .bss.Os_Core1.Os_Core1_Dyn               |
+    | _lc_gb_OS_DATA_tc1             | 0x60005400 |            |                                          |
+    | _lc_ge_csa_tc1                 | 0x60005400 |            |                                          |
+    | SpeedEst_Filter                | 0x60005500 | 0x00000060 | .bss.SpeedEst.SpeedEst_Filter            |
+    | _lc_gb_ASIL_D_DATA_tc1         | 0x60005500 |            |                                          |
+    | _lc_ge_OS_DATA_tc1             | 0x60005500 |            |                                          |
+    | SpeedEst_Out                   | 0x60005560 | 0x0000000c | .bss.SpeedEst.SpeedEst_Out               |
+    | _lc_ge_ASIL_D_DATA_tc1         | 0x6000556c |            |                                          |
+    | _lc_gb_Mpu_ReservedCorePad_tc1 | 0x60005570 |            |                                          |
+    | BodyCtl_Lamps                  | 0x60005580 | 0x00000010 | .bss.BodyCtl.BodyCtl_Lamps               |
+    | _lc_gb_QM_DATA_tc1             | 0x60005580 |            |                                          |
+    | _lc_ge_Mpu_ReservedCorePad_tc1 | 0x60005580 |            |                                          |
+    | BodyCtl_Doors                  | 0x60005590 | 0x00000010 | .bss.BodyCtl.BodyCtl_Doors               |
+    | EcuM_Core1_State               | 0x600055a0 | 0x00000020 | .bss.Bsw_EcuM.EcuM_Core1_State           |
+    | _lc_gb_CORE_DATA_tc1           | 0x600055a0 |            |                                          |
+    | _lc_ge_QM_DATA_tc1             | 0x600055a0 |            |                                          |
+    | _lc_ge_CORE_DATA_tc1           | 0x600055c0 |            |                                          |
+    | _lc_gb_ustack_tc0              | 0x70000000 |            |                                          |
+    | _lc_gb_istack_tc0              | 0x70001000 |            |                                          |
+    | _lc_ge_ustack_tc0              | 0x70001000 |            |                                          |
+    | _lc_gb_csa_tc0                 | 0x70001400 |            |                                          |
+    | _lc_ge_istack_tc0              | 0x70001400 |            |                                          |
+    | Os_Core0_Dyn                   | 0x70005400 | 0x00000120 | .bss.Os_Core0.Os_Core0_Dyn               |
+    | _lc_gb_OS_DATA_tc0             | 0x70005400 |            |                                          |
+    | _lc_ge_csa_tc0                 | 0x70005400 |            |                                          |
+    | Os_Core0_TaskDyn               | 0x70005520 | 0x00000080 | .bss.Os_Core0.Os_Core0_TaskDyn           |
+    | SafetyMon_State                | 0x700055a0 | 0x00000040 | .bss.SafetyMon.SafetyMon_State           |
+    | _lc_gb_ASIL_D_DATA_tc0         | 0x700055a0 |            |                                          |
+    | _lc_ge_OS_DATA_tc0             | 0x700055a0 |            |                                          |
+    | SafetyMon_Counters             | 0x700055e0 | 0x00000020 | .data.SafetyMon.SafetyMon_Counters       |
+    | TorqueArb_Request              | 0x70005600 | 0x00000018 | .bss.TorqueArb.TorqueArb_Request         |
+    | DiagLogger_RingBuf             | 0x70005618 | 0x00000200 | .bss.DiagLogger.DiagLogger_RingBuf       |
+    | _lc_gb_Mpu_ReservedCorePad_tc0 | 0x70005818 |            |                                          |
+    | _lc_ge_ASIL_D_DATA_tc0         | 0x70005818 |            |                                          |
+    | DiagLogger_Cfg                 | 0x70005828 | 0x00000010 | .data.DiagLogger.DiagLogger_Cfg          |
+    | _lc_gb_QM_DATA_tc0             | 0x70005828 |            |                                          |
+    | _lc_ge_Mpu_ReservedCorePad_tc0 | 0x70005828 |            |                                          |
+    | InfoGw_RxBuf                   | 0x70005838 | 0x00000100 | .bss.InfoGw.InfoGw_RxBuf                 |
+    | InfoGw_State                   | 0x70005938 | 0x00000008 | .bss.InfoGw.InfoGw_State                 |
+    | TorqueArb_Limit                | 0x70005940 | 0x00000008 | .data.TorqueArb.TorqueArb_Limit          |
+    | EcuM_Core0_State               | 0x70005948 | 0x00000020 | .bss.Bsw_EcuM.EcuM_Core0_State           |
+    | _lc_gb_CORE_DATA_tc0           | 0x70005948 |            |                                          |
+    | _lc_ge_QM_DATA_tc0             | 0x70005948 |            |                                          |
+    | Det_Core0_Log                  | 0x70005968 | 0x00000040 | .bss.Bsw_Det.Det_Core0_Log               |
+    | _lc_ge_CORE_DATA_tc0           | 0x700059a8 |            |                                          |
+    | Os_Core0_Dispatch              | 0x80000000 | 0x00000400 | .text.Os_Core0.Os_Core0_Dispatch         |
+    | Os_Core1_Dispatch              | 0x80000400 | 0x00000400 | .text.Os_Core1.Os_Core1_Dispatch         |
+    | Os_Core2_Dispatch              | 0x80000800 | 0x00000400 | .text.Os_Core2.Os_Core2_Dispatch         |
+    | SafetyMon_MainFunction         | 0x80000c00 | 0x000002a0 | .text.SafetyMon.SafetyMon_MainFunction   |
+    | TorqueArb_MainFunction         | 0x80000ea0 | 0x000001c8 | .text.TorqueArb.TorqueArb_MainFunction   |
+    | DiagLogger_MainFunction        | 0x80001068 | 0x00000110 | .text.DiagLogger.DiagLogger_MainFunction |
+    | InfoGw_MainFunction            | 0x80001178 | 0x00000340 | .text.InfoGw.InfoGw_MainFunction         |
+    | SpeedEst_MainFunction          | 0x800014b8 | 0x00000220 | .text.SpeedEst.SpeedEst_MainFunction     |
+    | BodyCtl_MainFunction           | 0x800016d8 | 0x00000180 | .text.BodyCtl.BodyCtl_MainFunction       |
+    | SteerMon_MainFunction          | 0x80001858 | 0x00000260 | .text.SteerMon.SteerMon_MainFunction     |
+    | Telemetry_MainFunction         | 0x80001ab8 | 0x00000150 | .text.Telemetry.Telemetry_MainFunction   |
+    | Com_MainFunctionRx             | 0x80001c08 | 0x00000500 | .text.Bsw_Com.Com_MainFunctionRx         |
+    | PduR_RxIndication              | 0x80002108 | 0x00000200 | .text.Bsw_PduR.PduR_RxIndication         |
+    | NvM_MainFunction               | 0x80002308 | 0x00000600 | .text.Bsw_NvM.NvM_MainFunction           |
+    | Dem_MainFunction               | 0x80002908 | 0x00000480 | .text.Bsw_Dem.Dem_MainFunction           |
+    | EcuM_Init                      | 0x80002d88 | 0x00000300 | .text.Bsw_EcuM.EcuM_Init                 |
+    | Det_ReportError                | 0x80003088 | 0x00000080 | .text.Bsw_Det.Det_ReportError            |
+    | Com_IpduBuffer                 | 0x90000000 | 0x00000400 | .bss.Bsw_Com.Com_IpduBuffer              |
+    | _lc_gb_SHARED_DATA             | 0x90000000 |            |                                          |
+    | PduR_Buffer                    | 0x90000400 | 0x00000200 | .bss.Bsw_PduR.PduR_Buffer                |
+    | NvM_RamMirror                  | 0x90000600 | 0x00000800 | .bss.Bsw_NvM.NvM_RamMirror               |
+    | Dem_EventStatus                | 0x90000e00 | 0x00000100 | .bss.Bsw_Dem.Dem_EventStatus             |
+    | _lc_gb_WILDCARD_DATA           | 0x90000e00 |            |                                          |
+    | _lc_ge_SHARED_DATA             | 0x90000e00 |            |                                          |
+    | SteerMon_Calib                 | 0x90000f00 | 0x00000040 | .data.SteerMon.SteerMon_Calib            |
+    | _lc_ge_WILDCARD_DATA           | 0x90000f40 |            |                                          |
+    | Os_Spinlocks                   | 0xb0010000 | 0x00000040 | .bss.Os_Shared.Os_Spinlocks              |
+    | _lc_gb_OS_SHARED_NOCACHE_DATA  | 0xb0010000 |            |                                          |
+    | Os_CoreStatus                  | 0xb0010040 | 0x00000020 | .bss.Os_Shared.Os_CoreStatus             |
+    | _lc_ge_OS_SHARED_NOCACHE_DATA  | 0xb0010060 |            |                                          |
+    +-----------------------------------------------------------------------------------------------------+
+
+**********************************************  Locate Rules  *************************************************
+
+  +--------------------------------------------------------------------------------------+
+  | Group                   | Properties         | Start      | End (excl.) | Size       |
+  |======================================================================================|
+  | ustack_tc2              | reserved           | 0x50000000 | 0x50001000  | 0x00001000 |
+  | istack_tc2              | reserved           | 0x50001000 | 0x50001400  | 0x00000400 |
+  | csa_tc2                 | reserved           | 0x50001400 | 0x50005400  | 0x00004000 |
+  | OS_DATA_tc2             | ordered contiguous | 0x50005400 | 0x50005500  | 0x00000100 |
+  | ASIL_D_DATA_tc2         | ordered contiguous | 0x50005500 | 0x50005530  | 0x00000030 |
+  | Mpu_ReservedCorePad_tc2 | ordered contiguous | 0x50005530 | 0x50005530  | 0x00000000 |
+  | QM_DATA_tc2             | ordered contiguous | 0x50005530 | 0x500055b0  | 0x00000080 |
+  | CORE_DATA_tc2           | ordered contiguous | 0x500055b0 | 0x500055d0  | 0x00000020 |
+  | ustack_tc1              | reserved           | 0x60000000 | 0x60001000  | 0x00001000 |
+  | istack_tc1              | reserved           | 0x60001000 | 0x60001400  | 0x00000400 |
+  | csa_tc1                 | reserved           | 0x60001400 | 0x60005400  | 0x00004000 |
+  | OS_DATA_tc1             | ordered contiguous | 0x60005400 | 0x60005500  | 0x00000100 |
+  | ASIL_D_DATA_tc1         | ordered contiguous | 0x60005500 | 0x6000556c  | 0x0000006c |
+  | Mpu_ReservedCorePad_tc1 | ordered contiguous | 0x60005570 | 0x60005580  | 0x00000010 |
+  | QM_DATA_tc1             | ordered contiguous | 0x60005580 | 0x600055a0  | 0x00000020 |
+  | CORE_DATA_tc1           | ordered contiguous | 0x600055a0 | 0x600055c0  | 0x00000020 |
+  | ustack_tc0              | reserved           | 0x70000000 | 0x70001000  | 0x00001000 |
+  | istack_tc0              | reserved           | 0x70001000 | 0x70001400  | 0x00000400 |
+  | csa_tc0                 | reserved           | 0x70001400 | 0x70005400  | 0x00004000 |
+  | OS_DATA_tc0             | ordered contiguous | 0x70005400 | 0x700055a0  | 0x000001a0 |
+  | ASIL_D_DATA_tc0         | ordered contiguous | 0x700055a0 | 0x70005818  | 0x00000278 |
+  | Mpu_ReservedCorePad_tc0 | ordered contiguous | 0x70005818 | 0x70005828  | 0x00000010 |
+  | QM_DATA_tc0             | ordered contiguous | 0x70005828 | 0x70005948  | 0x00000120 |
+  | CORE_DATA_tc0           | ordered contiguous | 0x70005948 | 0x700059a8  | 0x00000060 |
+  | SHARED_DATA             | ordered contiguous | 0x90000000 | 0x90000e00  | 0x00000e00 |
+  | WILDCARD_DATA           | ordered contiguous | 0x90000e00 | 0x90000f40  | 0x00000140 |
+  | OS_SHARED_NOCACHE_DATA  | ordered contiguous | 0xb0010000 | 0xb0010060  | 0x00000060 |
+  +--------------------------------------------------------------------------------------+
+
+****************************************  End of map  ****************************************
