@@ -1,0 +1,248 @@
+{
+  "target": "TC39x (synthetic demo ECU)",
+  "map_file": "synthetic_tc39x.map",
+  "mpu": {
+    "granularity_bytes": 8,
+    "region_symbols": "_lc_gb_<group> / _lc_ge_<group> (end exclusive)"
+  },
+  "guard_pad": {
+    "min_bytes": 16,
+    "between": [
+      "ASIL_D_DATA_tc{n}",
+      "QM_DATA_tc{n}"
+    ]
+  },
+  "module_asil": {
+    "SafetyMon": "D",
+    "TorqueArb": "D",
+    "DiagLogger": "QM",
+    "InfoGw": "QM",
+    "SpeedEst": "D",
+    "BodyCtl": "QM",
+    "SteerMon": "D",
+    "Telemetry": "QM",
+    "Os_Core0": "OS",
+    "Os_Core1": "OS",
+    "Os_Core2": "OS",
+    "Os_Shared": "OS",
+    "Bsw_EcuM": "BSW",
+    "Bsw_Det": "BSW",
+    "Bsw_Com": "BSW",
+    "Bsw_PduR": "BSW",
+    "Bsw_NvM": "BSW",
+    "Bsw_Dem": "BSW"
+  },
+  "partitions": [
+    {
+      "name": "OS_Core0",
+      "core": 0,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "OS_DATA_tc0",
+        "ustack_tc0",
+        "istack_tc0",
+        "csa_tc0"
+      ],
+      "modules": [
+        "Os_Core0"
+      ]
+    },
+    {
+      "name": "ASIL_D_Core0",
+      "core": 0,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "ASIL_D_DATA_tc0"
+      ],
+      "modules": [
+        "SafetyMon",
+        "TorqueArb"
+      ]
+    },
+    {
+      "name": "QM_Core0",
+      "core": 0,
+      "asil": "QM",
+      "trusted": false,
+      "protection_set": "PS1",
+      "groups": [
+        "QM_DATA_tc0"
+      ],
+      "modules": [
+        "DiagLogger",
+        "InfoGw"
+      ]
+    },
+    {
+      "name": "CoreData_Core0",
+      "core": 0,
+      "asil": "BSW",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "CORE_DATA_tc0"
+      ],
+      "modules": [
+        "Bsw_EcuM",
+        "Bsw_Det"
+      ]
+    },
+    {
+      "name": "OS_Core1",
+      "core": 1,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "OS_DATA_tc1",
+        "ustack_tc1",
+        "istack_tc1",
+        "csa_tc1"
+      ],
+      "modules": [
+        "Os_Core1"
+      ]
+    },
+    {
+      "name": "ASIL_D_Core1",
+      "core": 1,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "ASIL_D_DATA_tc1"
+      ],
+      "modules": [
+        "SpeedEst"
+      ]
+    },
+    {
+      "name": "QM_Core1",
+      "core": 1,
+      "asil": "QM",
+      "trusted": false,
+      "protection_set": "PS1",
+      "groups": [
+        "QM_DATA_tc1"
+      ],
+      "modules": [
+        "BodyCtl"
+      ]
+    },
+    {
+      "name": "CoreData_Core1",
+      "core": 1,
+      "asil": "BSW",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "CORE_DATA_tc1"
+      ],
+      "modules": [
+        "Bsw_EcuM",
+        "Bsw_Det"
+      ]
+    },
+    {
+      "name": "OS_Core2",
+      "core": 2,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "OS_DATA_tc2",
+        "ustack_tc2",
+        "istack_tc2",
+        "csa_tc2"
+      ],
+      "modules": [
+        "Os_Core2"
+      ]
+    },
+    {
+      "name": "ASIL_D_Core2",
+      "core": 2,
+      "asil": "D",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "ASIL_D_DATA_tc2"
+      ],
+      "modules": [
+        "SteerMon"
+      ]
+    },
+    {
+      "name": "QM_Core2",
+      "core": 2,
+      "asil": "QM",
+      "trusted": false,
+      "protection_set": "PS1",
+      "groups": [
+        "QM_DATA_tc2"
+      ],
+      "modules": [
+        "Telemetry"
+      ]
+    },
+    {
+      "name": "CoreData_Core2",
+      "core": 2,
+      "asil": "BSW",
+      "trusted": true,
+      "protection_set": "PS0",
+      "groups": [
+        "CORE_DATA_tc2"
+      ],
+      "modules": [
+        "Bsw_EcuM",
+        "Bsw_Det"
+      ]
+    }
+  ],
+  "shared_groups": [
+    {
+      "group": "SHARED_DATA",
+      "allowed_asil": [
+        "BSW",
+        "QM"
+      ],
+      "writable_by": [
+        "PS0",
+        "PS1"
+      ]
+    },
+    {
+      "group": "WILDCARD_DATA",
+      "allowed_asil": [
+        "BSW",
+        "QM"
+      ],
+      "writable_by": [
+        "PS0",
+        "PS1"
+      ],
+      "note": "catch-all for sections without MemMap; must never contain ASIL data"
+    },
+    {
+      "group": "OS_SHARED_NOCACHE_DATA",
+      "allowed_asil": [
+        "OS"
+      ],
+      "writable_by": [
+        "PS0"
+      ]
+    }
+  ],
+  "rules": {
+    "R1_placement": "every object must sit in a group owned by a partition whose ASIL >= module ASIL and that lists the module",
+    "R2_alignment": "every _lc_gb_/_lc_ge_ bounding an MPU region must be a multiple of granularity_bytes",
+    "R3_guard_pad": "trusted/non-trusted boundary must have a guard pad >= min_bytes",
+    "R4_xref": "a QM module referencing ASIL data is a potential interference (map cannot tell read vs write -> warning)",
+    "R5_wildcard": "no ASIL-rated object in WILDCARD_DATA"
+  }
+}
