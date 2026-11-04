@@ -1,6 +1,8 @@
 """Graph command line.
 
     python -m ffi_checker.graph load examples/demo_ecu/DemoEcu.arxml --reset
+    python -m ffi_checker.graph load examples/demo_ecu/DemoEcu.arxml --reset \\
+        --code examples/demo_ecu/src --map examples/demo_ecu/DemoEcu.map
     python -m ffi_checker.graph list
     python -m ffi_checker.graph query lower_asil_in_partition
     python -m ffi_checker.graph query-all
@@ -14,6 +16,7 @@ import argparse
 import sys
 
 from ..arxml_parser import parse_arxml
+from ..code import parse_c_sources, parse_map
 from .loader import connect, load_graph
 from .queries import QUERIES, run_query
 from .schema import to_graph
@@ -32,6 +35,8 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
     load = sub.add_parser("load", help="parse ARXML and load it into Neo4j")
     load.add_argument("arxml", nargs="+")
+    load.add_argument("--code", nargs="+", metavar="PATH", help="C source files or folders")
+    load.add_argument("--map", metavar="FILE", help="linker map file")
     load.add_argument("--reset", action="store_true", help="delete everything in the database first")
     sub.add_parser("list", help="list the named queries")
     q = sub.add_parser("query", help="run one named query")
@@ -49,7 +54,12 @@ def main(argv: list[str] | None = None) -> int:
         with driver.session() as session:
             if args.cmd == "load":
                 model = parse_arxml(args.arxml)
-                graph = to_graph(model)
+                code = None
+                if args.code:
+                    code = parse_c_sources(args.code)
+                    if args.map:
+                        parse_map(args.map, code)
+                graph = to_graph(model, code)
                 load_graph(session, graph, reset=args.reset)
                 print(f"Loaded {len(graph.nodes)} nodes and {len(graph.rels)} relationships.")
                 for w in model.warnings:

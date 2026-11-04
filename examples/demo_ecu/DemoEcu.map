@@ -1,0 +1,17 @@
+# SYNTHETIC, SIMPLIFIED linker map for learning.
+# This is NOT the real TASKING map format. It is a small stand-in so the rest of the
+# tool can be built now. When you have a (sanitised) real TASKING .map, a new parser is
+# added in src/ffi_checker/code/map_parser.py and nothing else has to change.
+#
+# MEMORY <region> origin=<hex> length=<hex>
+# SECTION <linker section> address=<hex> size=<hex> [region=<region>]
+
+MEMORY RAM_ASIL_C_CORE0 origin=0x70000000 length=0x4000
+MEMORY RAM_QM_CORE0     origin=0x70004000 length=0x4000
+MEMORY RAM_ASIL_C_CORE1 origin=0x60000000 length=0x4000
+
+SECTION .bss.BRAKECTRL_VAR_ZERO_INIT_8BIT   address=0x70000000 size=0x1 region=RAM_ASIL_C_CORE0
+SECTION .bss.DIAG_VAR_ZERO_INIT_32BIT       address=0x70004000 size=0x4
+SECTION .bss.SPEEDMON_VAR_ZERO_INIT_16BIT   address=0x60000000 size=0x2
+SECTION .bss.HMI_VAR_ZERO_INIT_8BIT         address=0x60000010 size=0x1
+SECTION .bss                                address=0x70004100 size=0x1

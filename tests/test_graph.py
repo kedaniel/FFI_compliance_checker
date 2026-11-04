@@ -17,7 +17,9 @@ import pytest
 
 from ffi_checker import parse_arxml
 from ffi_checker.graph import QUERIES, run_query, to_graph
+from ffi_checker.code import parse_c_sources, parse_map
 from ffi_checker.graph.loader import load_graph
+from ffi_checker.graph.schema import NODE_LABELS
 
 DEMO = Path(__file__).parent.parent / "examples" / "demo_ecu" / "DemoEcu.arxml"
 
@@ -70,12 +72,28 @@ def test_loader_uses_merge_and_batches(graph):
     load_graph(s, graph, reset=True)
     queries = [q for q, _ in s.calls]
     assert queries[0] == "MATCH (n) DETACH DELETE n"
-    assert sum("CREATE CONSTRAINT" in q for q in queries) == 5
+    assert sum("CREATE CONSTRAINT" in q for q in queries) == len(NODE_LABELS)
     node_loads = [(q, p) for q, p in s.calls if "MERGE (n:" in q]
     assert len(node_loads) == 5  # one batched query per label, not one per node
     assert all("UNWIND $rows" in q for q, _ in node_loads)
-    rel_loads = [q for q in queries if "MERGE (a)-[:" in q]
+    rel_loads = [q for q in queries if "MERGE (a)-[r:" in q]
     assert len(rel_loads) == 4
+
+
+def test_graph_with_code_adds_variables_and_memory(graph):
+    root = DEMO.parent
+    code = parse_map(root / "DemoEcu.map", parse_c_sources([root / "src"]))
+    g = to_graph(parse_arxml([DEMO]), code)
+    assert len(g.nodes_with_label("Variable")) == 5
+    assert len(g.nodes_with_label("MemoryRegion")) == 3
+    assert len(g.rels_of_type("OWNS_VARIABLE")) == 5
+    assert len(g.rels_of_type("IN_SECTION")) == 4  # Diag_UnmappedFlag has none
+    assert len(g.rels_of_type("PLACED_IN")) == 5
+    # Hmi_Run20ms both takes the address of and writes SpeedMon_Speed: "write" wins.
+    assert {r.props["kind"] for r in g.rels_of_type("WRITES")} == {"write"}
+    assert len(g.rels_of_type("WRITES")) == 7 and len(g.rels_of_type("READS")) == 3
+    paths = {n.path for n in g.nodes}
+    assert all(r.src in paths and r.dst in paths for r in g.rels)
 
 
 def test_every_query_has_description_and_cypher():
@@ -160,3 +178,41 @@ def test_system_certificates_can_be_enabled_and_disabled(monkeypatch):
         ssl.create_default_context()  # still works with the OS certificate store
     finally:
         ssl.SSLContext = original
+
+
+@pytest.fixture
+def neo4j_code_session():
+    from ffi_checker.graph.loader import connect
+
+    root = DEMO.parent
+    code = parse_map(root / "DemoEcu.map", parse_c_sources([root / "src"]))
+    driver = connect()
+    with driver.session() as session:
+        load_graph(session, to_graph(parse_arxml([DEMO]), code), reset=True)  # wipes the database
+        yield session
+    driver.close()
+
+
+@pytest.mark.neo4j
+@needs_neo4j
+def test_neo4j_code_queries(neo4j_code_session):
+    s = neo4j_code_session
+    variables = {r["variable"]: r for r in run_query(s, "variables")}
+    assert variables["BrakeCtrl_BrakeRequest"]["region"] == "RAM_ASIL_C_CORE0"
+    assert variables["Diag_UnmappedFlag"]["region"] is None
+
+    lower = {(r["runnable"], r["variable"]) for r in run_query(s, "lower_asil_writers")}
+    assert lower == {("Diag_Run100ms", "BrakeCtrl_BrakeRequest"), ("Hmi_Run20ms", "SpeedMon_Speed")}
+
+    # Only Diag -> BrakeCtrl crosses partitions. Hmi -> SpeedMon is inside OsApp_AsilC_Core1,
+    # and SpeedMon_Run5ms writing its own variable does not count.
+    cross = run_query(s, "cross_partition_writes")
+    assert [(r["runnable"], r["variable"], r["owner_os_app"]) for r in cross] == [
+        ("Diag_Run100ms", "BrakeCtrl_BrakeRequest", "OsApp_AsilC_Core0")
+    ]
+
+    assert [r["variable"] for r in run_query(s, "unplaced_variables")] == ["Diag_UnmappedFlag"]
+
+    mixed = run_query(s, "mixed_asil_regions")
+    assert [r["region"] for r in mixed] == ["RAM_ASIL_C_CORE1"]
+    assert sorted(mixed[0]["asil_levels"]) == ["C", "QM"]
