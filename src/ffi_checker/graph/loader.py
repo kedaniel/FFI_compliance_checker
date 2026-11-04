@@ -35,11 +35,30 @@ def load_settings() -> None:
     load_dotenv(find_dotenv(usecwd=True), override=False)
 
 
+def use_system_certificates() -> None:
+    """Make Python trust the operating system's certificate store.
+
+    Many company networks inspect HTTPS traffic and re-sign it with a company
+    certificate. Windows already trusts that certificate, but Python ships its own
+    list and does not, which gives "self-signed certificate in certificate chain".
+    `truststore` makes Python use the OS list instead. Harmless on networks
+    without inspection. Set FFI_SYSTEM_CERTS=0 to turn it off.
+    """
+    if os.environ.get("FFI_SYSTEM_CERTS", "1") == "0":
+        return
+    try:
+        import truststore
+    except ImportError:
+        return
+    truststore.inject_into_ssl()
+
+
 def connect():
     """Open a Neo4j driver using NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD (env vars or `.env`)."""
     from neo4j import GraphDatabase  # imported here so the rest of the tool works without it
 
     load_settings()
+    use_system_certificates()
     uri = os.environ.get("NEO4J_URI", DEFAULT_URI)
     auth = (
         os.environ.get("NEO4J_USER", DEFAULT_USER),

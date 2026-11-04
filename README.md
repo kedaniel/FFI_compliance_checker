@@ -133,6 +133,12 @@ notepad .env
 `.env` is git-ignored, so your password stays on your machine. Real environment
 variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) override the file if set.
 
+**Company network error `self-signed certificate in certificate chain`?** Your network
+re-signs HTTPS traffic. The tool already uses the operating system's certificate store
+(via `truststore`) to handle this; run `pip install -e ".[dev,graph]"` again to get it. If
+it still fails, as a last resort for the *synthetic* demo only, change `neo4j+s://` to
+`neo4j+ssc://` in `.env` (encrypted, but the certificate is not verified).
+
 ### 3. Run it
 
 ```bash

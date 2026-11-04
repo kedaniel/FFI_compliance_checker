@@ -144,3 +144,19 @@ def test_settings_are_read_from_env_file(tmp_path, monkeypatch):
     load_settings()
     assert os.environ["NEO4J_URI"] == "neo4j+s://example.databases.neo4j.io"
     assert os.environ["NEO4J_PASSWORD"] == "from-env"
+
+
+def test_system_certificates_can_be_enabled_and_disabled(monkeypatch):
+    import ssl
+
+    from ffi_checker.graph.loader import use_system_certificates
+
+    monkeypatch.setenv("FFI_SYSTEM_CERTS", "0")
+    use_system_certificates()  # must do nothing, and not raise
+    monkeypatch.setenv("FFI_SYSTEM_CERTS", "1")
+    original = ssl.SSLContext
+    try:
+        use_system_certificates()
+        ssl.create_default_context()  # still works with the OS certificate store
+    finally:
+        ssl.SSLContext = original
