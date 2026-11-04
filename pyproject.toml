@@ -11,7 +11,7 @@ dependencies = ["pydantic>=2.5"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
-graph = ["neo4j>=5.20"]
+graph = ["neo4j>=5.20", "python-dotenv>=1.0"]
 
 [project.scripts]
 ffi-checker = "ffi_checker.cli:main"

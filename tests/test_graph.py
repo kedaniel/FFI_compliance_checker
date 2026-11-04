@@ -3,11 +3,11 @@
 Unit tests (always run): check the graph we build, and that the loader sends
 the expected Cypher, using a fake session instead of a real database.
 
-Integration tests (marked `neo4j`): run against a real Neo4j. They are skipped
-unless NEO4J_URI is set, e.g.:
+Integration tests (marked `neo4j`): run against the Neo4j configured in `.env`
+(or NEO4J_* env vars). They WIPE that database, so they only run when you ask:
 
-    docker compose up -d
-    NEO4J_URI=bolt://localhost:7687 pytest -m neo4j
+    PowerShell:   $env:RUN_NEO4J_TESTS="1"; pytest -m neo4j
+    macOS/Linux:  RUN_NEO4J_TESTS=1 pytest -m neo4j
 """
 
 import os
@@ -85,7 +85,9 @@ def test_every_query_has_description_and_cypher():
 
 # ----------------------------------------------------------- integration tests
 
-needs_neo4j = pytest.mark.skipif(not os.environ.get("NEO4J_URI"), reason="NEO4J_URI not set")
+needs_neo4j = pytest.mark.skipif(
+    os.environ.get("RUN_NEO4J_TESTS") != "1", reason="set RUN_NEO4J_TESTS=1 to run (wipes the database)"
+)
 
 
 @pytest.fixture
@@ -130,3 +132,15 @@ def test_neo4j_other_queries(neo4j_session):
     assert [r["core"] for r in run_query(neo4j_session, "mixed_criticality_cores")] == ["Core0"]
     assert [r["os_app"] for r in run_query(neo4j_session, "trusted_partitions")] == ["OsApp_AsilC_Core0"]
     assert run_query(neo4j_session, "unmapped_runnables") == []
+
+
+def test_settings_are_read_from_env_file(tmp_path, monkeypatch):
+    from ffi_checker.graph.loader import load_settings
+
+    (tmp_path / ".env").write_text("NEO4J_URI=neo4j+s://example.databases.neo4j.io\nNEO4J_PASSWORD=from-file\n")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("NEO4J_URI", raising=False)
+    monkeypatch.setenv("NEO4J_PASSWORD", "from-env")  # real env var must win over the file
+    load_settings()
+    assert os.environ["NEO4J_URI"] == "neo4j+s://example.databases.neo4j.io"
+    assert os.environ["NEO4J_PASSWORD"] == "from-env"

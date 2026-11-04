@@ -9,3 +9,6 @@ build/
 # Never commit customer / real project data
 customer_data/
 *.local.arxml
+
+# Local settings and secrets (copy .env.example to .env)
+.env

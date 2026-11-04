@@ -22,10 +22,24 @@ DEFAULT_USER = "neo4j"
 DEFAULT_PASSWORD = "ffi-checker-dev"  # matches docker-compose.yml, local development only
 
 
+def load_settings() -> None:
+    """Read a `.env` file (searched from the current folder upwards) into environment variables.
+
+    Values already set in the environment win over the file, so you can still
+    override a single setting from the command line.
+    """
+    try:
+        from dotenv import find_dotenv, load_dotenv
+    except ImportError:  # python-dotenv not installed: rely on real env vars only
+        return
+    load_dotenv(find_dotenv(usecwd=True), override=False)
+
+
 def connect():
-    """Open a Neo4j driver using env vars NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD."""
+    """Open a Neo4j driver using NEO4J_URI / NEO4J_USER / NEO4J_PASSWORD (env vars or `.env`)."""
     from neo4j import GraphDatabase  # imported here so the rest of the tool works without it
 
+    load_settings()
     uri = os.environ.get("NEO4J_URI", DEFAULT_URI)
     auth = (
         os.environ.get("NEO4J_USER", DEFAULT_USER),

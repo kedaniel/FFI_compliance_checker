@@ -114,26 +114,42 @@ The same model, now stored in **Neo4j** so FFI questions become graph queries.
 (OsApplication)-[:RUNS_ON]->(Core {core_id})
 ```
 
-### Run it
+### 1. Get a Neo4j database (pick one)
 
-You need Docker (Docker Desktop on Windows/macOS).
+| Option | When | How |
+|--------|------|-----|
+| **Aura Free** (cloud, nothing to install) | Learning with the **synthetic** demo data only | console.neo4j.io → Create instance → Free. Save the credentials file it offers (the password is shown only once). |
+| **Local Neo4j** (Docker / Rancher Desktop, or Neo4j Desktop) | Anything with real project data | `docker compose up -d` (wait ~20 s), or create a local database in Neo4j Desktop. |
+
+### 2. Tell the tool how to connect
+
+Copy [`.env.example`](.env.example) to `.env` and fill in your URI and password:
+
+```powershell
+Copy-Item .env.example .env     # macOS/Linux: cp .env.example .env
+notepad .env
+```
+
+`.env` is git-ignored, so your password stays on your machine. Real environment
+variables (`NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`) override the file if set.
+
+### 3. Run it
 
 ```bash
-docker compose up -d                     # starts Neo4j, wait ~20 s
 pip install -e ".[dev,graph]"
 
 python -m ffi_checker.graph load examples/demo_ecu/DemoEcu.arxml --reset
 python -m ffi_checker.graph list         # named queries
 python -m ffi_checker.graph query-all
 
-NEO4J_URI=bolt://localhost:7687 pytest   # also runs the Neo4j integration tests
-                                         # (they wipe the database first)
+$env:RUN_NEO4J_TESTS="1"; pytest         # also run the Neo4j integration tests
+                                         # (they WIPE the database first)
 ```
 
-Then open **http://localhost:7474** (user `neo4j`, password `ffi-checker-dev`) and run
-`MATCH (n) RETURN n` to *see* your ECU as a graph. Click a node to see its properties.
+Then run `MATCH (n) RETURN n` to *see* your ECU as a graph: in Aura via **Query** on
+your instance, locally at **http://localhost:7474**. Click a node to see its properties.
 
-Without Docker, the unit tests still run (`pytest`); the Neo4j tests are skipped.
+Without a database, the unit tests still run (`pytest`); the Neo4j tests are skipped.
 
 | File | What it does |
 |------|--------------|
@@ -142,6 +158,7 @@ Without Docker, the unit tests still run (`pytest`); the Neo4j tests are skipped
 | `src/ffi_checker/graph/queries.py` | Named Cypher queries, each with a description. Read these first. |
 | `src/ffi_checker/graph/__main__.py` | `load`, `list`, `query`, `query-all` commands. |
 | `docker-compose.yml` | Local Neo4j Community (free). |
+| `.env.example` | Connection settings template. Copy to `.env`. |
 | `tests/test_graph.py` | Unit tests with a fake session, plus integration tests against a real Neo4j. |
 
 Expected result for the seeded issue:
