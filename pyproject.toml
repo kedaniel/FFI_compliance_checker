@@ -12,6 +12,7 @@ dependencies = ["pydantic>=2.5"]
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 graph = ["neo4j>=5.20", "python-dotenv>=1.0", "truststore>=0.9"]
+llm = ["pydantic-ai-slim[openai]>=2.0", "python-dotenv>=1.0", "truststore>=0.9"]
 
 [project.scripts]
 ffi-checker = "ffi_checker.cli:main"

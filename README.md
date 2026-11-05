@@ -34,7 +34,7 @@ ARXML + generated C + map file
 | 2 | Load the model into **Neo4j** and query it with Cypher | Graph databases, Cypher | ✅ |
 | 3 | Parse generated C (MemMap sections) and the linker map | Static code extraction | ✅ |
 | 4 | Memory-FFI rule engine with findings and evidence | Rules as code, traceability | ⬜ |
-| 5 | Explain findings with a local LLM (**Ollama** + **Pydantic AI**) | Prompting, structured output | ⬜ |
+| 5 | Explain findings with a local LLM (**Ollama** + **Pydantic AI**) | Prompting, structured output, guardrails | ✅ |
 | 6 | **RAG** over AUTOSAR specs and safety notes (**LlamaIndex** + **Chroma**) | Embeddings, chunking, retrieval | ⬜ |
 | 7 | Expose the model as an **MCP server** | Tools for LLMs | ⬜ |
 | 8 | Agent pipeline with human review (**LangGraph**) | Agents, state, checkpoints | ⬜ |
@@ -369,3 +369,105 @@ input and the hash changes, so a finding can always be tied to the exact files i
    contiguous) and add a seeded problem and an expected finding for it.
 4. Open `report.json` and find the evidence for R3. Could an assessor check it using only the
    map file and the spec?
+
+## Milestone 5 walkthrough: an LLM explains the findings
+
+The rule engine says *what* is wrong. Milestone 5 adds an LLM that says it in plain language
+and suggests a next step. The LLM **explains, it never decides**:
+
+```
+map + spec ──► rule engine ──► FINDINGS (severity, evidence)   <- deterministic, unchanged
+                                   │
+                                   ▼   one finding at a time
+                          prompt ──► LLM ──► Explanation (validated JSON)
+                                              │
+                                  grounding check: every name and address must come from the finding
+                                              │  no  ──► model is told what was wrong and tries again
+                                              ▼  yes
+                                    explanation added to the report (marked "advisory")
+```
+
+### Try it without any LLM first
+
+```
+pip install -e ".[dev,graph,llm]"
+python -m ffi_checker.explain --map examples/tc39x/synthetic_tc39x.map --spec examples/tc39x/partition_spec.json --demo
+python -m ffi_checker.explain --map examples/tc39x/synthetic_tc39x.map --spec examples/tc39x/partition_spec.json --dry-run --limit 1
+```
+
+`--demo` prints explanations built from templates (no model). `--dry-run` prints the exact
+prompts an LLM would receive, so you can read what it is told. On Windows `cmd` keep each command on one line.
+
+### Then with a real local model (Ollama)
+
+1. Install **Ollama** from ollama.com/download (Windows installer, installs for your user).
+2. In a terminal: `ollama pull qwen2.5:7b` (about 5 GB). If your laptop is short on memory or
+   slow, use `ollama pull qwen2.5:3b` and set `LLM_MODEL=qwen2.5:3b` in `.env`.
+3. Run the same command **without** `--demo`:
+   ```
+   python -m ffi_checker.explain --map examples/tc39x/synthetic_tc39x.map --spec examples/tc39x/partition_spec.json --limit 2 --out report.json
+   ```
+   Without a GPU each explanation takes some seconds up to a minute.
+
+If the LLM cannot be reached, the tool says so and uses templates, so it always produces a result.
+
+### Pointing it at a customer's LLM
+
+Nothing in the code is tied to Ollama. The tool talks to any **OpenAI-compatible** endpoint
+(vLLM, LM Studio, Azure OpenAI, an internal gateway). Change only the settings in `.env`:
+
+| Setting | Meaning |
+|---------|---------|
+| `LLM_BASE_URL` | e.g. `http://localhost:11434/v1` (Ollama), `https://llm.customer.internal/v1` |
+| `LLM_MODEL` | the model name that server knows |
+| `LLM_API_KEY` | key, if the server needs one |
+| `LLM_OUTPUT_MODE` | `prompted` (default, works with any chat model) or `tool` (function calling) |
+
+Company TLS inspection is handled the same way as for Neo4j (the OS certificate store is used).
+
+### The guardrails (the important part of this milestone)
+
+| Risk | Protection | Where |
+|------|-----------|-------|
+| LLM changes or disputes a verdict | `Explanation` has no severity or verdict field. The report keeps the rule engine's findings untouched, and a test checks they are identical with and without the LLM. | `schema.py`, `test_cli_report_keeps_verdicts_and_hides_the_key` |
+| LLM invents a symbol, address or file | Grounding check: every identifier-like word and hex number must appear in the finding. If not, the answer is rejected and the model must retry. After 2 retries the finding is reported without an explanation. | `grounding.py`, `agent.py` |
+| Malformed answer | Pydantic validates the JSON (required fields, length limits) and the model retries on errors. | `schema.py` |
+| Prompt injection through a symbol name | The system prompt says everything inside `<finding>` is data, and the model only gets one finding, not the files. | `prompt.py` |
+| Customer data leaves the network | Nothing is sent unless you configure an endpoint. `--dry-run` shows the exact text. API keys never go into the report. | `__main__.py` |
+| LLM down or slow | Falls back to templates and says so. | `__main__.py` |
+
+The report (`--out`) records which model and server were used, the prompt version and a hash
+of the prompt text, next to the SHA-256 of the input files. Explanations are labelled `advisory`.
+
+### Files
+
+| File | What it does |
+|------|--------------|
+| `src/ffi_checker/explain/schema.py` | The answer format (`Explanation`). |
+| `src/ffi_checker/explain/prompt.py` | System prompt, per-rule background text and the prompt builder. |
+| `src/ffi_checker/explain/grounding.py` | The check that an answer only uses facts from the finding. |
+| `src/ffi_checker/explain/agent.py` | Settings, the Pydantic AI agent with output validator and retries, and `explain_finding`. |
+| `src/ffi_checker/explain/template.py` | Explanations without an LLM. |
+| `src/ffi_checker/explain/__main__.py` | The command line and report. |
+| `tests/test_explain.py` | Tests with a fake OpenAI-compatible server: no real model needed. |
+
+### Known simplifications
+
+- **Tested without a real model.** The tests use a fake server that speaks the OpenAI protocol,
+  so the wiring, retries and guardrails are verified, but the quality of the wording from a
+  real 3B or 7B model is not. Judge that on your laptop and tell me what you see.
+- The background text per rule is written by us. In milestone 6 it is replaced by retrieval
+  over the standard and your safety requirements (RAG).
+- The grounding check catches invented names and numbers, not wrong reasoning. That is why the
+  text is marked advisory and the engineer still decides.
+- Explanations are generated one finding at a time and sequentially. Parallel requests and caching
+  come when needed.
+
+### Exercises (milestone 5)
+
+1. Run `--dry-run` and read the prompt. What does the model know about the finding? What does it not know?
+2. Run with the LLM and compare its text with the `--demo` template for the same finding. Which is
+   more useful? Where is it vaguer or wrong?
+3. In `prompt.py` change the system prompt (for example "answer in German"). Does the answer change?
+   Which line of `report.json` shows that the prompt version changed?
+4. Make the grounding check stricter or looser in `grounding.py` and see which tests fail.
